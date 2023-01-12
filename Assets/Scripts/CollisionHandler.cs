@@ -1,111 +1,122 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
-    [SerializeField] float levelLoadDelay = 1f;
+    [SerializeField] private float levelLoadDelay = 1f;
 
-    int currentSceneIndex;
-    bool isFinishLanded;
-    bool isTransitioning = false;
+    private int currentSceneIndex;
+    private bool isApproachFinish = false;
+    private bool isTransitioning = false;
+    private bool isCollisionDisabled = false;
     
-    Rocket rocket;
-
-    private void Awake()
-    {
-        currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-    }
+    private Rocket rocket;
 
     private void Start()
     {
+        currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         rocket = GameManager.instance.rocket;
     }
 
     private void Update()
     {
-        CheckLandedForNextLevel();
+        ProcessNextLevel();
+        RespondToDebugKeys();
+    }
+
+    // cheat code
+    private void RespondToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L)) { LoadNextLevel(); }
+        if (Input.GetKeyDown(KeyCode.C)) { rocket.gameObject.GetComponent<Rigidbody>().useGravity = false; }
+        if (Input.GetKeyDown(KeyCode.R)) { ReloadLevel(); }
+        if (Input.GetKeyDown(KeyCode.V)) { isCollisionDisabled = !isCollisionDisabled; }
+        if (Input.GetKeyDown(KeyCode.Escape)) { Application.Quit(); }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(isTransitioning)
-        {
-            return;
-        }
+        if (isTransitioning || isCollisionDisabled) { return; }
 
         switch (collision.gameObject.tag)
         {
             case "Friendly":
-                StartApproachFriendly();
+
                 break;
+
             case "Fuel":
-                StartFuelSquence(collision);
+                StartFuelSequence(collision);
                 break;
+
             case "Finish":
-                StartSucessSquence();
+                StartSucessSequence();
                 break;
+
             default:
                 StartCrashSequence(collision);
                 break;
         }
     }
 
-    #region Squence
-    private void StartSucessSquence()
+
+    #region Sequence
+
+    private void StartSucessSequence()
     {
-        isFinishLanded = true;
+        isApproachFinish = true;
     }
 
     private void StartCrashSequence(Collision collision)
     {
         isTransitioning = true;
-
-        rocket.PlaySoundCrashExpotion();
-        rocket.PlayEffectExplotion();
-
         StopMovement();
-        collision.gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
+        UpdateObstacle(collision);
+        rocket.StartSoundCrashExpotion();
+        rocket.StartEffectExplotion();
         Invoke("ReloadLevel", levelLoadDelay);
     }
 
-    private void StartFuelSquence(Collision collision)
+    private void StartFuelSequence(Collision other)
     {
         isTransitioning = true;
-        Destroy(collision.gameObject);
+        StopMovement();
+        rocket.StartSoundFuel();
+        Destroy(other.gameObject);
+        StartMovement();
         isTransitioning = false;
     }
 
-    private void StartApproachFriendly()
-    {
-        Debug.Log("you hit friendly!");
-    } 
-    #endregion
+    #endregion Sequence
 
+    private void UpdateObstacle(Collision obstacle)
+    {
+        obstacle.gameObject.GetComponent<MeshRenderer>().material.color = Color.gray;
+    }
 
     private void StopMovement()
     {
         gameObject.GetComponent<Movement>().enabled = false;
     }
-        
-    private void CheckLandedForNextLevel()
+
+    private void StartMovement()
     {
-        if (isFinishLanded && rocket.state == Rocket.State.LANDED && !isTransitioning)
-        {
-            isTransitioning = true;
-
-            rocket.PlaySoundSuccess();
-            rocket.PlayEffectSuccess();
-
-            StopMovement();
-            Invoke("GoNextLevel", levelLoadDelay);
-        }
+        gameObject.GetComponent<Movement>().enabled = true;
     }
 
-    private void GoNextLevel()
+    private void ProcessNextLevel()
+    {
+        if (!isApproachFinish) { return; }
+        if (isTransitioning) { return; }
+        if (rocket.state != Rocket.State.LANDED) { return; }
+
+        isTransitioning = true;
+        rocket.StartSoundSuccess();
+        rocket.StartEffectSuccess();
+        StopMovement();
+        Invoke("LoadNextLevel", levelLoadDelay);
+    }
+
+    private void LoadNextLevel()
     {
         int nextSceneIndex = ++currentSceneIndex;
 

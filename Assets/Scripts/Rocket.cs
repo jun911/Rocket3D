@@ -1,25 +1,19 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
-    [SerializeField] int Fuel = 60;
-    [SerializeField] float velocity;
-    [SerializeField] bool isXRotateLanded;
-    [SerializeField] bool isYRotateLanded;
-    [SerializeField] AudioClip sfxMainEngine;
-    [SerializeField] AudioClip sfxCrashExplotion;
-    [SerializeField] AudioClip sfxSuccess;
-    [SerializeField] ParticleSystem fxBooster;
-    [SerializeField] ParticleSystem fxExplotion;
-    [SerializeField] ParticleSystem fxSuccess;
-    [SerializeField] ParticleSystem fxLeftFire;
-    [SerializeField] ParticleSystem fxRightFire;
+    [SerializeField] private int Fuel = 60;
+    [SerializeField] private float velocity;
+    [SerializeField] private AudioClip sfxMainEngine;
+    [SerializeField] private AudioClip sfxCrashExplotion;
+    [SerializeField] private AudioClip sfxSuccess;
+    [SerializeField] private AudioClip sfxFuel;
+    [SerializeField] private ParticleSystem fxBooster;
+    [SerializeField] private ParticleSystem fxExplotion;
+    [SerializeField] private ParticleSystem fxSuccess;
 
-    Rigidbody rb;
-    AudioSource audioSource;
+    private Rigidbody rb;
+    private AudioSource audioSource;
 
     public State state;
 
@@ -45,15 +39,11 @@ public class Rocket : MonoBehaviour
 
     private void UpdateState()
     {
-        velocity = rb.velocity.magnitude;
-        isXRotateLanded = (transform.localRotation.eulerAngles.x > 350 || transform.localRotation.eulerAngles.x < 10);
-        isYRotateLanded = (transform.localRotation.eulerAngles.y > 350 || transform.localRotation.eulerAngles.y < 10);
-
-        if (velocity > 0.01)
+        if (IsFlying())
         {
             state = State.FLY;
         }
-        else if(isXRotateLanded && isYRotateLanded)
+        else if (IsStandUpright())
         {
             state = State.LANDED;
         }
@@ -63,30 +53,55 @@ public class Rocket : MonoBehaviour
         }
     }
 
-    public void PlaySoundMainEngine()
+    private bool IsStandUpright()
     {
+        bool isXRotateLanded = (transform.localRotation.eulerAngles.x > 350 || transform.localRotation.eulerAngles.x < 10);
+        bool isYRotateLanded = (transform.localRotation.eulerAngles.y > 350 || transform.localRotation.eulerAngles.y < 10);
+
+        return (isXRotateLanded && isYRotateLanded);
+    }
+
+    private bool IsFlying()
+    {
+        velocity = rb.velocity.magnitude;
+
+        return velocity > 0.01;
+    }
+
+    #region SFX
+
+    public void StartSoundMainEngine()
+    {
+        SetVolumn(10f);
         PlaySound(sfxMainEngine);
     }
 
-    public void PlaySoundCrashExpotion()
+    public void StartSoundCrashExpotion()
     {
         SetVolumn(100f);
         StopSound();
         PlaySound(sfxCrashExplotion);
     }
 
-    public void PlaySoundSuccess()
+    public void StartSoundSuccess()
     {
         SetVolumn(100f);
         StopSound();
         PlaySound(sfxSuccess);
     }
 
-    private void PlaySound(AudioClip audioClip)
+    public void StartSoundFuel()
+    {
+        SetVolumn(50f);
+        StopSound();
+        PlaySound(sfxFuel);
+    }
+
+    private void PlaySound(AudioClip sfx)
     {
         if (!audioSource.isPlaying)
         {
-            audioSource.PlayOneShot(audioClip);
+            audioSource.PlayOneShot(sfx);
         }
     }
 
@@ -97,49 +112,43 @@ public class Rocket : MonoBehaviour
 
     public void StopSound()
     {
-        if(audioSource.isPlaying)
+        if (audioSource.isPlaying)
         {
             audioSource.Stop();
         }
     }
 
-    public void PlayEffectThrust()
+    #endregion SFX
+
+    #region FX
+
+    public void StartEffectThrust()
     {
-        fxBooster.Play();
+        if (!fxBooster.isPlaying)
+        {
+            fxBooster.Play();
+        }
     }
-    
+
     public void StopEffectThrust()
     {
         fxBooster.Stop();
     }
 
-    public void PlayEffectExplotion()
+    public void StartEffectExplotion()
     {
-        fxExplotion.Play();
+        PlayEffect(fxExplotion);
     }
 
-    public void PlayEffectSuccess()
+    public void StartEffectSuccess()
     {
-        fxSuccess.Play();
+        PlayEffect(fxSuccess);
     }
 
-    public void PlayEffectLeftFire()
+    private void PlayEffect(ParticleSystem fx)
     {
-        fxLeftFire.Play();
+        fx.Play();
     }
 
-    public void PlayEffectRightFire()
-    {
-        fxRightFire.Play();
-    }
-
-    public void StopEffectLeftFire()
-    {
-        fxLeftFire.Stop();
-    }
-
-    public void StopEffectRightFire()
-    {
-        fxRightFire.Stop();
-    }
+    #endregion FX
 }

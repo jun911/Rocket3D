@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6049476325721332737}
   - component: {fileID: 661666326133087339}
   - component: {fileID: 1705668520127675665}
+  - component: {fileID: 2817998588784592771}
   m_Layer: 0
   m_Name: Rocket
   m_TagString: Player
@@ -269,6 +270,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelLoadDelay: 1
+--- !u!114 &2817998588784592771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2432929479786834174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd15555ebd68ee4483480f8cb1a84a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3788904149967714060
 GameObject:
   m_ObjectHideFlags: 0

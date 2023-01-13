@@ -31,7 +31,6 @@ public class CollisionHandler : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C)) { rocket.gameObject.GetComponent<Rigidbody>().useGravity = false; }
         if (Input.GetKeyDown(KeyCode.R)) { ReloadLevel(); }
         if (Input.GetKeyDown(KeyCode.V)) { isCollisionDisabled = !isCollisionDisabled; }
-        if (Input.GetKeyDown(KeyCode.Escape)) { Application.Quit(); }
     }
 
     private void OnCollisionEnter(Collision collision)

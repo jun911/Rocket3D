@@ -70,8 +70,7 @@ public class CollisionHandler : MonoBehaviour
         isTransitioning = true;
         StopMovement();
         UpdateObstacle(collision);
-        rocket.StartSoundCrashExpotion();
-        rocket.StartEffectExplotion();
+        rocket.StartCrashSequence();
         Invoke("ReloadLevel", levelLoadDelay);
     }
 
@@ -109,8 +108,7 @@ public class CollisionHandler : MonoBehaviour
         if (rocket.state != Rocket.State.LANDED) { return; }
 
         isTransitioning = true;
-        rocket.StartSoundSuccess();
-        rocket.StartEffectSuccess();
+        rocket.StartSucessSequence();
         StopMovement();
         Invoke("LoadNextLevel", levelLoadDelay);
     }

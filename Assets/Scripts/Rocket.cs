@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using UnityEngine;
 
 public class Rocket : MonoBehaviour
@@ -68,6 +69,24 @@ public class Rocket : MonoBehaviour
         return velocity > 0.01;
     }
 
+    public void StartCrashSequence()
+    {
+        StartSoundCrashExplotion();
+        StartEffectExplotion();
+        HideRocketMesh();
+    }
+
+    private void HideRocketMesh()
+    {
+        gameObject.GetComponent<MeshRenderer>().enabled = false;
+    }
+
+    public void StartSucessSequence()
+    {
+        StartSoundSuccess();
+        StartEffectSuccess();
+    }
+
     #region SFX
 
     public void StartSoundMainEngine()
@@ -76,14 +95,14 @@ public class Rocket : MonoBehaviour
         PlaySound(sfxMainEngine);
     }
 
-    public void StartSoundCrashExpotion()
+    private void StartSoundCrashExplotion()
     {
         SetVolumn(100f);
         StopSound();
         PlaySound(sfxCrashExplotion);
     }
 
-    public void StartSoundSuccess()
+    private void StartSoundSuccess()
     {
         SetVolumn(100f);
         StopSound();
@@ -96,6 +115,7 @@ public class Rocket : MonoBehaviour
         StopSound();
         PlaySound(sfxFuel);
     }
+
 
     private void PlaySound(AudioClip sfx)
     {
@@ -120,6 +140,7 @@ public class Rocket : MonoBehaviour
 
     #endregion SFX
 
+
     #region FX
 
     public void StartEffectThrust()
@@ -135,12 +156,12 @@ public class Rocket : MonoBehaviour
         fxBooster.Stop();
     }
 
-    public void StartEffectExplotion()
+    private void StartEffectExplotion()
     {
         PlayEffect(fxExplotion);
     }
 
-    public void StartEffectSuccess()
+    private void StartEffectSuccess()
     {
         PlayEffect(fxSuccess);
     }
